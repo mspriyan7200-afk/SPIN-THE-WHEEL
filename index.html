@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Spin Wheel & Challenge Tracker</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-900 text-slate-100 flex flex-col min-h-screen">
+
+  <!-- TOP HEADER -->
+  <header class="bg-slate-950/80 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+          <i data-lucide="disc-3" class="w-6 h-6 text-white animate-spin-slow"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-white tracking-wide flex items-center gap-2">
+            Event Wheel Host <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">PRO</span>
+          </h1>
+          <p class="text-xs text-slate-400">3-Wheel Challenge & Team Combination Master</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center space-x-1 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800">
+        <button data-tab="spin-room" class="tab-btn px-4 py-2 text-xs font-semibold rounded-lg text-sky-400 bg-slate-700 border-b-2 border-sky-400 transition-all flex items-center gap-2">
+          <i data-lucide="disc" class="w-4 h-4"></i> Spin Room
+        </button>
+        <button data-tab="editor" class="tab-btn px-4 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition-all flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4"></i> Edit Wheels
+        </button>
+        <button data-tab="tracker" class="tab-btn px-4 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition-all flex items-center gap-2">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i> Master Tracker
+        </button>
+        <button data-tab="market-shift" class="tab-btn px-4 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition-all flex items-center gap-2">
+          <i data-lucide="zap" class="w-4 h-4"></i> Market Shift Deck
+        </button>
+      </nav>
+
+      <!-- Audio Mute Toggle & Quick Actions -->
+      <div class="flex items-center gap-3">
+        <button id="audio-toggle-btn" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700/80 transition-colors" title="Toggle Sound FX">
+          <i data-lucide="volume-2" class="w-5 h-5 text-emerald-400"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Bar -->
+    <div class="md:hidden flex border-t border-slate-800 bg-slate-950 px-2 py-1 overflow-x-auto justify-around">
+      <button data-tab="spin-room" class="tab-btn px-3 py-2 text-xs font-medium text-sky-400 flex flex-col items-center gap-1">
+        <i data-lucide="disc" class="w-4 h-4"></i> Spin
+      </button>
+      <button data-tab="editor" class="tab-btn px-3 py-2 text-xs font-medium text-slate-400 flex flex-col items-center gap-1">
+        <i data-lucide="sliders" class="w-4 h-4"></i> Edit
+      </button>
+      <button data-tab="tracker" class="tab-btn px-3 py-2 text-xs font-medium text-slate-400 flex flex-col items-center gap-1">
+        <i data-lucide="layout-grid" class="w-4 h-4"></i> Tracker
+      </button>
+      <button data-tab="market-shift" class="tab-btn px-3 py-2 text-xs font-medium text-slate-400 flex flex-col items-center gap-1">
+        <i data-lucide="zap" class="w-4 h-4"></i> Market Shift
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- TAB 1: SPIN ROOM -->
+    <section id="tab-spin-room" class="tab-content space-y-6">
+      
+      <!-- TOP ACTION BAR: TEAM SELECTION & MASTER SPIN BUTTON -->
+      <div class="glass-panel p-4 sm:p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 border border-sky-500/20">
+        <div class="w-full md:w-auto flex-1 flex flex-col sm:flex-row items-center gap-3">
+          <label for="team-name-input" class="text-xs font-semibold text-slate-300 uppercase tracking-wider whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="users" class="w-4 h-4 text-sky-400"></i> Active Team:
+          </label>
+          <div class="relative w-full sm:w-64">
+            <input type="text" id="team-name-input" list="existing-teams-list" placeholder="e.g. Team 01, Alpha..." class="w-full bg-slate-900/90 border border-slate-700 text-slate-100 px-3.5 py-2 rounded-xl text-sm font-semibold focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400" />
+            <datalist id="existing-teams-list"></datalist>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+          <button id="spin-all-btn" class="flex-1 md:flex-initial px-6 py-2.5 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold rounded-xl text-sm glow-button flex items-center justify-center gap-2">
+            <i data-lucide="play" class="w-4 h-4 fill-white"></i> SPIN ALL 3 WHEELS
+          </button>
+          
+          <button id="record-combination-btn" class="flex-1 md:flex-initial px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm glow-button flex items-center justify-center gap-2 border border-emerald-400/30">
+            <i data-lucide="save" class="w-4 h-4"></i> Record Combination
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 SPIN WHEELS GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- WHEEL 1: DIGITAL EXPERIENCE -->
+        <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-between border border-slate-700/60 relative overflow-hidden group">
+          <div class="text-center mb-3">
+            <span class="text-[10px] font-bold tracking-wider text-sky-400 uppercase bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20">WHEEL 1</span>
+            <h2 class="text-lg font-bold text-white mt-1">Digital Experience</h2>
+            <p class="text-xs text-slate-400">Format / Digital Platform</p>
+          </div>
+
+          <div class="wheel-wrapper my-2">
+            <div class="wheel-canvas-box">
+              <canvas id="wheel1-canvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Result Badge -->
+          <div class="w-full text-center mt-3 space-y-3">
+            <div id="wheel1-result-badge" class="px-3 py-2 rounded-xl text-sm font-bold bg-slate-800 text-slate-400 border border-slate-700 transition-all min-h-[40px] flex items-center justify-center">
+              Ready to Spin
+            </div>
+            <button id="spin-wheel1-btn" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 font-semibold rounded-xl text-xs border border-slate-700 transition-colors flex items-center justify-center gap-1.5">
+              <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Spin Wheel 1
+            </button>
+          </div>
+        </div>
+
+        <!-- WHEEL 2: PRODUCT / OBJECT -->
+        <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-between border border-slate-700/60 relative overflow-hidden group">
+          <div class="text-center mb-3">
+            <span class="text-[10px] font-bold tracking-wider text-amber-400 uppercase bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">WHEEL 2</span>
+            <h2 class="text-lg font-bold text-white mt-1">Product / Object</h2>
+            <p class="text-xs text-slate-400">Physical Device / Subject</p>
+          </div>
+
+          <div class="wheel-wrapper my-2">
+            <div class="wheel-canvas-box">
+              <canvas id="wheel2-canvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Result Badge -->
+          <div class="w-full text-center mt-3 space-y-3">
+            <div id="wheel2-result-badge" class="px-3 py-2 rounded-xl text-sm font-bold bg-slate-800 text-slate-400 border border-slate-700 transition-all min-h-[40px] flex items-center justify-center">
+              Ready to Spin
+            </div>
+            <button id="spin-wheel2-btn" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold rounded-xl text-xs border border-slate-700 transition-colors flex items-center justify-center gap-1.5">
+              <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Spin Wheel 2
+            </button>
+          </div>
+        </div>
+
+        <!-- WHEEL 3: TARGET USER / CONSTRAINT -->
+        <div class="glass-panel p-5 rounded-2xl flex flex-col items-center justify-between border border-slate-700/60 relative overflow-hidden group">
+          <div class="text-center mb-3">
+            <span class="text-[10px] font-bold tracking-wider text-rose-400 uppercase bg-rose-500/10 px-2.5 py-1 rounded-full border border-rose-500/20">WHEEL 3</span>
+            <h2 class="text-lg font-bold text-white mt-1">Target User / Constraint</h2>
+            <p class="text-xs text-slate-400">User Persona & Challenge</p>
+          </div>
+
+          <div class="wheel-wrapper my-2">
+            <div class="wheel-canvas-box">
+              <canvas id="wheel3-canvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Result Badge -->
+          <div class="w-full text-center mt-3 space-y-3">
+            <div id="wheel3-result-badge" class="px-3 py-2 rounded-xl text-sm font-bold bg-slate-800 text-slate-400 border border-slate-700 transition-all min-h-[40px] flex items-center justify-center">
+              Ready to Spin
+            </div>
+            <button id="spin-wheel3-btn" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-rose-300 font-semibold rounded-xl text-xs border border-slate-700 transition-colors flex items-center justify-center gap-1.5">
+              <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Spin Wheel 3
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: WHEEL EDITOR -->
+    <section id="tab-editor" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-2xl space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="edit-3" class="w-5 h-5 text-sky-400"></i> Edit Wheel Options
+            </h2>
+            <p class="text-xs text-slate-400">Add, remove, or bulk import options for each spin wheel.</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="open-bulk-import-modal-btn" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-colors flex items-center gap-1.5">
+              <i data-lucide="file-text" class="w-4 h-4 text-sky-400"></i> Bulk Paste List
+            </button>
+            <button id="reset-wheels-btn" class="px-3.5 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold rounded-xl border border-rose-500/30 transition-colors flex items-center gap-1.5">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset Defaults
+            </button>
+          </div>
+        </div>
+
+        <!-- Editor Wheel Selector Tabs -->
+        <div class="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
+          <button data-wheel="wheel1" class="editor-wheel-tab px-4 py-2 rounded-xl text-xs font-bold bg-sky-500 text-white transition-colors">
+            Wheel 1: Digital Experience
+          </button>
+          <button data-wheel="wheel2" class="editor-wheel-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors">
+            Wheel 2: Product / Object
+          </button>
+          <button data-wheel="wheel3" class="editor-wheel-tab px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors">
+            Wheel 3: Target User / Constraint
+          </button>
+        </div>
+
+        <h3 id="editor-wheel-title" class="text-sm font-bold text-sky-300">Editing: Digital Experience</h3>
+
+        <!-- Add Single Item Bar -->
+        <div class="flex items-center gap-2">
+          <input type="text" id="new-item-input" placeholder="Type new option text..." class="flex-1 bg-slate-900 border border-slate-700 text-slate-100 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-sky-400" />
+          <button id="add-editor-item-btn" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-sm transition-colors flex items-center gap-1">
+            <i data-lucide="plus" class="w-4 h-4"></i> Add
+          </button>
+        </div>
+
+        <!-- Editable Items Grid / List -->
+        <div id="editor-items-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[480px] overflow-y-auto pr-1">
+          <!-- Dynamic item rows inserted by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MASTER COMBINATION TRACKER -->
+    <section id="tab-tracker" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-2xl space-y-6">
+        
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="table" class="w-5 h-5 text-emerald-400"></i> Master Combination Tracker
+            </h2>
+            <p class="text-xs text-slate-400">Recorded 3-wheel spin combinations and challenge assignments per team.</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="export-csv-btn" class="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-semibold rounded-xl border border-emerald-500/40 transition-colors flex items-center gap-1.5">
+              <i data-lucide="download" class="w-4 h-4"></i> Export CSV
+            </button>
+            <button id="export-json-btn" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition-colors flex items-center gap-1.5">
+              <i data-lucide="hard-drive-upload" class="w-4 h-4"></i> Backup JSON
+            </button>
+            <label class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 cursor-pointer transition-colors flex items-center gap-1.5">
+              <i data-lucide="hard-drive-download" class="w-4 h-4"></i> Restore JSON
+              <input type="file" id="import-json-file" accept=".json" class="hidden" />
+            </label>
+            <button id="clear-records-btn" class="px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold rounded-xl border border-rose-500/30 transition-colors flex items-center gap-1.5">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+          <input type="text" id="tracker-search-input" placeholder="Search by Team Name or keyword..." class="w-full bg-slate-900 border border-slate-700 text-slate-100 pl-10 pr-4 py-2 rounded-xl text-sm focus:outline-none focus:border-sky-400" />
+        </div>
+
+        <!-- Records Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-sm text-left">
+            <thead class="text-xs uppercase bg-slate-950 text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="px-6 py-3">Team Name / #</th>
+                <th class="px-6 py-3">Wheel 1: Digital Experience</th>
+                <th class="px-6 py-3">Wheel 2: Product / Object</th>
+                <th class="px-6 py-3">Wheel 3: Target User / Constraint</th>
+                <th class="px-6 py-3">Market Shift</th>
+                <th class="px-6 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tracker-table-body">
+              <!-- Rendered dynamically by app.js -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 4: MARKET SHIFT DECK -->
+    <section id="tab-market-shift" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-2xl space-y-6 max-w-3xl mx-auto">
+        <div class="text-center space-y-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/30">Section 4 Event Activity</span>
+          <h2 class="text-2xl font-bold text-white flex items-center justify-center gap-2">
+            <i data-lucide="zap" class="w-6 h-6 text-purple-400"></i> Market Shift Wildcard Deck
+          </h2>
+          <p class="text-xs text-slate-400">Draw surprise mid-event constraint cards to challenge participating teams!</p>
+        </div>
+
+        <!-- 3D Flip Card -->
+        <div id="market-shift-card-container" class="card-flip-container mx-auto">
+          <div class="card-flip-inner">
+            <!-- Card Front -->
+            <div class="card-flip-front shadow-2xl">
+              <i data-lucide="help-circle" class="w-16 h-16 text-indigo-300 animate-bounce mb-3"></i>
+              <h3 class="text-lg font-bold">Market Shift Card</h3>
+              <p class="text-xs text-indigo-200 mt-1">Click "Draw Card" below to reveal mid-event wildcard</p>
+            </div>
+
+            <!-- Card Back -->
+            <div class="card-flip-back shadow-2xl space-y-3">
+              <span id="card-back-impact" class="text-[11px] font-bold uppercase tracking-wider text-purple-300 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/40">Impact: High</span>
+              <h3 id="card-back-title" class="text-xl font-bold text-white">📉 Severe Budget Cut</h3>
+              <p id="card-back-desc" class="text-xs text-slate-300 px-4 leading-relaxed">Your project cost must be slashed by 80%. Simplify all features down to a single core MVP.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <button id="draw-market-shift-btn" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-sm glow-button flex items-center justify-center gap-2">
+            <i data-lucide="shuffle" class="w-4 h-4"></i> Draw Random Market Shift Card
+          </button>
+          
+          <button id="assign-shift-to-team-btn" class="w-full sm:w-auto px-5 py-3 bg-slate-800 hover:bg-slate-700 text-purple-300 font-semibold rounded-xl text-sm border border-purple-500/30 transition-colors flex items-center justify-center gap-2">
+            <i data-lucide="user-check" class="w-4 h-4"></i> Assign Card to Team
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-500">
+    <p>Event Spin Wheel & Combination Recorder • Created for Event Hosting & Hackathons</p>
+  </footer>
+
+  <!-- MODAL 1: BULK IMPORT MODAL -->
+  <div id="bulk-import-modal" class="modal-root hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm modal-overlay">
+    <div class="glass-panel max-w-lg w-full p-6 rounded-2xl space-y-4 border border-slate-700 modal-content">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-white">Bulk Paste Options</h3>
+        <button class="close-modal-btn p-1 text-slate-400 hover:text-white rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-400">Paste your list of options below (one option per line):</p>
+
+      <textarea id="bulk-paste-textarea" rows="10" placeholder="Mobile App&#10;VR Experience&#10;Browser Extension..." class="w-full bg-slate-900 border border-slate-700 text-slate-100 p-3 rounded-xl text-sm font-mono focus:outline-none focus:border-sky-400"></textarea>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button class="close-modal-btn px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-700">Cancel</button>
+        <button id="bulk-import-btn" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs">Save List</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: PRINTABLE TEAM CHALLENGE CARD MODAL -->
+  <div id="challenge-card-modal" class="modal-root hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm modal-overlay">
+    <div class="glass-panel max-w-xl w-full p-6 rounded-2xl space-y-6 border border-slate-700 modal-content relative">
+      
+      <div class="flex items-center justify-between no-print border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i data-lucide="award" class="w-5 h-5 text-amber-400"></i> Team Challenge Card
+        </h3>
+        <div class="flex items-center gap-2">
+          <button id="print-challenge-card-btn" class="px-4 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5">
+            <i data-lucide="printer" class="w-4 h-4"></i> Print Card
+          </button>
+          <button class="close-modal-btn p-1 text-slate-400 hover:text-white rounded-lg">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Area -->
+      <div id="printable-card-area">
+        <div class="print-card-box bg-slate-900 border-2 border-slate-700 p-6 rounded-xl space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400">OFFICIAL EVENT CHALLENGE</span>
+              <h2 id="card-team-name" class="text-2xl font-black text-white">Team 01</h2>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-sky-500/20 border border-sky-500/40 flex items-center justify-center">
+              <i data-lucide="trophy" class="w-6 h-6 text-sky-400"></i>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700/60">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-300 block mb-0.5">1. Digital Experience</span>
+              <p id="card-wheel1-val" class="text-base font-bold text-white">Mobile App</p>
+            </div>
+
+            <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700/60">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-300 block mb-0.5">2. Product / Object</span>
+              <p id="card-wheel2-val" class="text-base font-bold text-white">Coffee Machine</p>
+            </div>
+
+            <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700/60">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-rose-300 block mb-0.5">3. Target User / Constraint</span>
+              <p id="card-wheel3-val" class="text-base font-bold text-white">Elderly Tech Beginners</p>
+            </div>
+
+            <div class="bg-purple-950/40 p-3 rounded-lg border border-purple-800/50">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-purple-300 block mb-0.5">Mid-Event Market Shift Wildcard</span>
+              <p id="card-marketshift-val" class="text-sm font-semibold text-purple-200">None</p>
+            </div>
+          </div>
+
+          <div class="border-t border-slate-800 pt-3 text-center">
+            <p class="text-xs text-slate-400 font-semibold italic">⚠️ Rule: Teams cannot replace or swap their assigned combination.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Application Entry Scripts -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
