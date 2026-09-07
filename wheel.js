@@ -48,7 +48,7 @@ export class SpinWheel {
   resizeCanvas() {
     if (!this.canvas) return;
     const parent = this.canvas.parentElement;
-    const size = Math.min(parent ? parent.clientWidth || 320 : 320, 380);
+    const size = Math.min(parent ? parent.clientWidth || 360 : 360, 500);
     const dpr = window.devicePixelRatio || 1;
 
     this.canvas.width = size * dpr;
@@ -60,7 +60,7 @@ export class SpinWheel {
     this.size = size;
     this.centerX = size / 2;
     this.centerY = size / 2;
-    this.radius = size / 2 - 15; // 15px padding for pointer & border
+    this.radius = size / 2 - 14; // Padding for pointer & border
 
     this.offscreenCanvas.width = size * dpr;
     this.offscreenCanvas.height = size * dpr;
@@ -76,7 +76,7 @@ export class SpinWheel {
     const items = this.config.items;
     const numSlices = items.length;
     const sliceAngle = (Math.PI * 2) / numSlices;
-    const colors = this.config.colorPalette || ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+    const colors = this.config.colorPalette || ['#00C8FF', '#FFC800', '#FF2A85', '#8B3DFF'];
 
     this.offscreenCtx.clearRect(0, 0, this.size, this.size);
 
@@ -98,7 +98,7 @@ export class SpinWheel {
       this.offscreenCtx.fill();
 
       this.offscreenCtx.lineWidth = 1.5;
-      this.offscreenCtx.strokeStyle = '#1E293B';
+      this.offscreenCtx.strokeStyle = '#06080E';
       this.offscreenCtx.stroke();
 
       // Draw slice text
@@ -107,9 +107,9 @@ export class SpinWheel {
       this.offscreenCtx.rotate(textAngle);
 
       this.offscreenCtx.fillStyle = '#FFFFFF';
-      this.offscreenCtx.shadowColor = 'rgba(0,0,0,0.6)';
-      this.offscreenCtx.shadowBlur = 3;
-      this.offscreenCtx.font = `bold ${Math.max(10, Math.min(14, 180 / numSlices))}px Inter, sans-serif`;
+      this.offscreenCtx.shadowColor = 'rgba(0,0,0,0.7)';
+      this.offscreenCtx.shadowBlur = 4;
+      this.offscreenCtx.font = `bold ${Math.max(11, Math.min(16, 220 / numSlices))}px Inter, sans-serif`;
       this.offscreenCtx.textAlign = 'right';
       this.offscreenCtx.textBaseline = 'middle';
 
@@ -130,21 +130,21 @@ export class SpinWheel {
     this.offscreenCtx.beginPath();
     this.offscreenCtx.arc(0, 0, this.radius, 0, Math.PI * 2);
     this.offscreenCtx.lineWidth = 4;
-    this.offscreenCtx.strokeStyle = '#38BDF8';
+    this.offscreenCtx.strokeStyle = '#00C8FF';
     this.offscreenCtx.stroke();
 
     // Center Hub Knob
     this.offscreenCtx.beginPath();
     this.offscreenCtx.arc(0, 0, 22, 0, Math.PI * 2);
-    this.offscreenCtx.fillStyle = '#0F172A';
+    this.offscreenCtx.fillStyle = '#06080E';
     this.offscreenCtx.fill();
     this.offscreenCtx.lineWidth = 3;
-    this.offscreenCtx.strokeStyle = '#38BDF8';
+    this.offscreenCtx.strokeStyle = '#00C8FF';
     this.offscreenCtx.stroke();
 
     this.offscreenCtx.beginPath();
     this.offscreenCtx.arc(0, 0, 8, 0, Math.PI * 2);
-    this.offscreenCtx.fillStyle = '#38BDF8';
+    this.offscreenCtx.fillStyle = '#00C8FF';
     this.offscreenCtx.fill();
 
     this.offscreenCtx.restore();
@@ -181,7 +181,7 @@ export class SpinWheel {
     this.ctx.lineTo(0, 22);
     this.ctx.closePath();
 
-    this.ctx.fillStyle = '#F43F5E';
+    this.ctx.fillStyle = '#FF2A85'; // Hot pink pointer
     this.ctx.fill();
 
     this.ctx.lineWidth = 2;
