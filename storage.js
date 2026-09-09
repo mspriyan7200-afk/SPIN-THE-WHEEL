@@ -2,31 +2,40 @@
  * LocalStorage Manager & Data Export/Import Service
  */
 
-import { DEFAULT_WHEELS, DEFAULT_MARKET_SHIFTS } from './data.js';
+import { DEFAULT_WHEELS, DEFAULT_MARKET_SHIFTS, DEFAULT_SPEED_FEATURES } from './data.js';
 
 const STORAGE_KEYS = {
   WHEELS: 'event_spin_wheels_config',
   RECORDS: 'event_spin_team_records',
-  MARKET_SHIFTS: 'event_spin_market_shifts'
+  MARKET_SHIFTS: 'event_spin_market_shifts',
+  SPEED_FEATURES: 'event_spin_speed_features',
+  ADMIN_AUTH: 'event_spin_admin_auth',
+  ADMIN_SESSION: 'event_spin_admin_session'
 };
 
 export class StorageService {
   static getWheels() {
+    const themeColors = ['#00C8FF', '#FFC800', '#FF2A85', '#8B3DFF'];
     try {
       const data = localStorage.getItem(STORAGE_KEYS.WHEELS);
       if (data) {
         const parsed = JSON.parse(data);
-        // Fallback check to ensure all 3 wheels exist
-        return {
-          wheel1: parsed.wheel1 || DEFAULT_WHEELS.wheel1,
-          wheel2: parsed.wheel2 || DEFAULT_WHEELS.wheel2,
-          wheel3: parsed.wheel3 || DEFAULT_WHEELS.wheel3
-        };
+        const w1 = parsed.wheel1 || DEFAULT_WHEELS.wheel1;
+        const w2 = parsed.wheel2 || DEFAULT_WHEELS.wheel2;
+        const w3 = parsed.wheel3 || DEFAULT_WHEELS.wheel3;
+        w1.colorPalette = themeColors;
+        w2.colorPalette = themeColors;
+        w3.colorPalette = themeColors;
+        return { wheel1: w1, wheel2: w2, wheel3: w3 };
       }
     } catch (e) {
       console.error('Failed to parse wheel data from storage', e);
     }
-    return JSON.parse(JSON.stringify(DEFAULT_WHEELS));
+    const res = JSON.parse(JSON.stringify(DEFAULT_WHEELS));
+    res.wheel1.colorPalette = themeColors;
+    res.wheel2.colorPalette = themeColors;
+    res.wheel3.colorPalette = themeColors;
+    return res;
   }
 
   static saveWheels(wheelsConfig) {
@@ -56,7 +65,6 @@ export class StorageService {
 
   static saveTeamRecord(record) {
     const records = this.getTeamRecords();
-    // Check if team already exists (update if so, or add new)
     const existingIdx = records.findIndex(r => r.teamName.trim().toLowerCase() === record.teamName.trim().toLowerCase());
     
     if (existingIdx >= 0) {
@@ -98,6 +106,31 @@ export class StorageService {
     return [];
   }
 
+  static getSpeedFeatures() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.SPEED_FEATURES);
+      if (data) {
+        return JSON.parse(data);
+      }
+    } catch (e) {
+      console.error('Failed to parse speed features', e);
+    }
+    return JSON.parse(JSON.stringify(DEFAULT_SPEED_FEATURES));
+  }
+
+  static saveSpeedFeatures(features) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.SPEED_FEATURES, JSON.stringify(features));
+    } catch (e) {
+      console.error('Failed to save speed features', e);
+    }
+  }
+
+  static resetSpeedFeatures() {
+    localStorage.removeItem(STORAGE_KEYS.SPEED_FEATURES);
+    return JSON.parse(JSON.stringify(DEFAULT_SPEED_FEATURES));
+  }
+
   static getMarketShifts() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.MARKET_SHIFTS);
@@ -107,7 +140,7 @@ export class StorageService {
     } catch (e) {
       console.error('Failed to parse market shifts', e);
     }
-    return DEFAULT_MARKET_SHIFTS;
+    return JSON.parse(JSON.stringify(DEFAULT_MARKET_SHIFTS));
   }
 
   static saveMarketShifts(shifts) {
@@ -115,6 +148,36 @@ export class StorageService {
       localStorage.setItem(STORAGE_KEYS.MARKET_SHIFTS, JSON.stringify(shifts));
     } catch (e) {
       console.error('Failed to save market shifts', e);
+    }
+  }
+
+  static resetMarketShifts() {
+    localStorage.removeItem(STORAGE_KEYS.MARKET_SHIFTS);
+    return JSON.parse(JSON.stringify(DEFAULT_MARKET_SHIFTS));
+  }
+
+  // --- ADMIN AUTHENTICATION ---
+  static getAdminCredentials() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.ADMIN_AUTH);
+      if (data) return JSON.parse(data);
+    } catch (e) {}
+    return { username: 'admin', password: 'admin' };
+  }
+
+  static setAdminCredentials(username, password) {
+    localStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, JSON.stringify({ username, password }));
+  }
+
+  static isAdminLoggedIn() {
+    return localStorage.getItem(STORAGE_KEYS.ADMIN_SESSION) === 'true';
+  }
+
+  static setAdminLoggedIn(status) {
+    if (status) {
+      localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, 'true');
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.ADMIN_SESSION);
     }
   }
 
@@ -126,13 +189,24 @@ export class StorageService {
       return;
     }
 
-    const headers = ['Team Name', 'Digital Experience (Wheel 1)', 'Product/Object (Wheel 2)', 'Target User/Constraint (Wheel 3)', 'Market Shift', 'Recorded At'];
+    const headers = [
+      'Team Name',
+      'Digital Experience (Wheel 1)',
+      'Product/Object (Wheel 2)',
+      'Target User/Constraint (Wheel 3)',
+      'Generated Problem Statement',
+      'Speed Feature Twist',
+      'Market Shift',
+      'Recorded At'
+    ];
     
     const rows = records.map(r => [
-      `"${r.teamName.replace(/"/g, '""')}"`,
+      `"${(r.teamName || '').replace(/"/g, '""')}"`,
       `"${(r.wheel1Result || '').replace(/"/g, '""')}"`,
       `"${(r.wheel2Result || '').replace(/"/g, '""')}"`,
       `"${(r.wheel3Result || '').replace(/"/g, '""')}"`,
+      `"${(r.problemStatement || '').replace(/"/g, '""')}"`,
+      `"${(r.speedFeature || 'None').replace(/"/g, '""')}"`,
       `"${(r.marketShift || 'None').replace(/"/g, '""')}"`,
       `"${new Date(r.updatedAt || r.createdAt).toLocaleString()}"`
     ]);
@@ -152,10 +226,11 @@ export class StorageService {
   // Export full JSON Backup
   static exportFullBackup() {
     const backup = {
-      version: 1.0,
+      version: 1.3,
       timestamp: new Date().toISOString(),
       wheels: this.getWheels(),
       records: this.getTeamRecords(),
+      speedFeatures: this.getSpeedFeatures(),
       marketShifts: this.getMarketShifts()
     };
 
@@ -174,6 +249,7 @@ export class StorageService {
       const parsed = JSON.parse(jsonContent);
       if (parsed.wheels) this.saveWheels(parsed.wheels);
       if (parsed.records) localStorage.setItem(STORAGE_KEYS.RECORDS, JSON.stringify(parsed.records));
+      if (parsed.speedFeatures) this.saveSpeedFeatures(parsed.speedFeatures);
       if (parsed.marketShifts) this.saveMarketShifts(parsed.marketShifts);
       return true;
     } catch (e) {
