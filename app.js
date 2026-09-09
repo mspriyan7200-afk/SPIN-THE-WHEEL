@@ -27,7 +27,6 @@ class EventSpinApp {
     
     this.currentDrawnMarketShift = null;
     this.currentDrawnSpeedFeature = null;
-    this.currentSpeedTwist = null;
     this.currentProblemStatement = '';
     this.problemTemplateIndex = 0;
 
@@ -40,12 +39,10 @@ class EventSpinApp {
     this.setupAudioToggle();
     this.setupSpinRoomControls();
     this.setupProblemStatementGenerator();
-    this.setupSpeedTwistControls();
     this.setupSpeedFeatureDeck();
     this.setupMarketShiftDeck();
     this.setupEditor();
     this.setupMasterTracker();
-    this.setupAdminAuth();
     this.setupModals();
 
     window.addEventListener('resize', () => {
@@ -177,48 +174,6 @@ class EventSpinApp {
 
     this.updateTeamDropdown();
     this.updateItemCounts();
-  }
-
-  // --- SPEED FEATURE TWIST CONTROLS ---
-  setupSpeedTwistControls() {
-    const rollBtn = document.getElementById('roll-speed-twist-btn');
-    const clearBtn = document.getElementById('clear-speed-twist-btn');
-
-    if (rollBtn) {
-      rollBtn.addEventListener('click', () => {
-        const features = this.speedFeatures.length > 0 ? this.speedFeatures : StorageService.getSpeedFeatures();
-        const randomIndex = Math.floor(Math.random() * features.length);
-        const twist = features[randomIndex];
-        this.setSpeedTwist(twist);
-      });
-    }
-
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        this.clearSpeedTwist();
-      });
-    }
-  }
-
-  setSpeedTwist(twist) {
-    this.currentSpeedTwist = twist;
-    const banner = document.getElementById('speed-twist-banner');
-    const titleEl = document.getElementById('speed-twist-title');
-    const descEl = document.getElementById('speed-twist-desc');
-
-    if (banner && titleEl && descEl && twist) {
-      titleEl.textContent = twist.title;
-      descEl.textContent = twist.description;
-      banner.classList.remove('hidden');
-      soundEngine.playFanfare();
-      this.triggerConfetti();
-    }
-  }
-
-  clearSpeedTwist() {
-    this.currentSpeedTwist = null;
-    const banner = document.getElementById('speed-twist-banner');
-    if (banner) banner.classList.add('hidden');
   }
 
   // --- PROBLEM STATEMENT GENERATOR ---
@@ -362,14 +317,17 @@ class EventSpinApp {
 
     this.updateProblemStatement();
 
+    const existingRecords = StorageService.getTeamRecords();
+    const existing = existingRecords.find(r => r.teamName.trim().toLowerCase() === teamName.toLowerCase());
+
     const record = {
       teamName: teamName,
       wheel1Result: wheel1Res,
       wheel2Result: wheel2Res,
       wheel3Result: wheel3Res,
       problemStatement: this.currentProblemStatement || generateProblemStatement(wheel1Res, wheel2Res, wheel3Res).replace(/\*\*/g, ''),
-      speedFeature: this.currentSpeedTwist ? this.currentSpeedTwist.title : null,
-      marketShift: null
+      speedFeature: existing ? existing.speedFeature : null,
+      marketShift: existing ? existing.marketShift : null
     };
 
     this.records = StorageService.saveTeamRecord(record);
@@ -544,7 +502,6 @@ class EventSpinApp {
     const resetBtn = document.getElementById('reset-current-category-btn');
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
-        if (!this.checkAdminPrivilege()) return;
         if (confirm(`Are you sure you want to reset "${this.activeEditorCategory}" to defaults?`)) {
           if (this.activeEditorCategory.startsWith('wheel')) {
             this.wheelsConfig = StorageService.resetWheels();
@@ -569,7 +526,6 @@ class EventSpinApp {
     const bulkImportBtn = document.getElementById('bulk-import-btn');
     if (bulkImportBtn) {
       bulkImportBtn.addEventListener('click', () => {
-        if (!this.checkAdminPrivilege()) return;
         const textarea = document.getElementById('bulk-paste-textarea');
         const text = textarea ? textarea.value : '';
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -611,7 +567,6 @@ class EventSpinApp {
       `;
 
       document.getElementById('add-editor-item-btn')?.addEventListener('click', () => {
-        if (!this.checkAdminPrivilege()) return;
         const input = document.getElementById('new-item-input');
         const text = input ? input.value.trim() : '';
         if (text) {
@@ -639,7 +594,6 @@ class EventSpinApp {
 
       itemsContainer.querySelectorAll('.editor-wheel-input').forEach(input => {
         input.addEventListener('change', (e) => {
-          if (!this.checkAdminPrivilege()) return;
           const idx = parseInt(e.target.dataset.index);
           const val = e.target.value.trim();
           if (val) {
@@ -653,7 +607,6 @@ class EventSpinApp {
 
       itemsContainer.querySelectorAll('.delete-wheel-item-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          if (!this.checkAdminPrivilege()) return;
           const idx = parseInt(e.currentTarget.dataset.index);
           this.wheelsConfig[this.activeEditorCategory].items.splice(idx, 1);
           StorageService.saveWheels(this.wheelsConfig);
@@ -683,7 +636,6 @@ class EventSpinApp {
       `;
 
       document.getElementById('add-speed-card-btn')?.addEventListener('click', () => {
-        if (!this.checkAdminPrivilege()) return;
         const title = document.getElementById('new-speed-title')?.value.trim();
         const badge = document.getElementById('new-speed-badge')?.value.trim() || 'Speed Twist';
         const desc = document.getElementById('new-speed-desc')?.value.trim();
@@ -718,7 +670,6 @@ class EventSpinApp {
 
       itemsContainer.querySelectorAll('.edit-speed-title, .edit-speed-desc').forEach(input => {
         input.addEventListener('change', (e) => {
-          if (!this.checkAdminPrivilege()) return;
           const id = e.target.dataset.id;
           const card = this.speedFeatures.find(c => c.id === id);
           if (card) {
@@ -732,7 +683,6 @@ class EventSpinApp {
 
       itemsContainer.querySelectorAll('.delete-speed-card-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          if (!this.checkAdminPrivilege()) return;
           const id = e.currentTarget.dataset.id;
           this.speedFeatures = this.speedFeatures.filter(c => c.id !== id);
           StorageService.saveSpeedFeatures(this.speedFeatures);
@@ -765,7 +715,6 @@ class EventSpinApp {
       `;
 
       document.getElementById('add-shift-card-btn')?.addEventListener('click', () => {
-        if (!this.checkAdminPrivilege()) return;
         const title = document.getElementById('new-shift-title')?.value.trim();
         const impact = document.getElementById('new-shift-impact')?.value || 'High';
         const desc = document.getElementById('new-shift-desc')?.value.trim();
@@ -800,7 +749,6 @@ class EventSpinApp {
 
       itemsContainer.querySelectorAll('.edit-shift-title, .edit-shift-desc').forEach(input => {
         input.addEventListener('change', (e) => {
-          if (!this.checkAdminPrivilege()) return;
           const id = e.target.dataset.id;
           const card = this.marketShifts.find(c => c.id === id);
           if (card) {
@@ -814,7 +762,6 @@ class EventSpinApp {
 
       itemsContainer.querySelectorAll('.delete-shift-card-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          if (!this.checkAdminPrivilege()) return;
           const id = e.currentTarget.dataset.id;
           this.marketShifts = this.marketShifts.filter(c => c.id !== id);
           StorageService.saveMarketShifts(this.marketShifts);
@@ -842,7 +789,6 @@ class EventSpinApp {
     const importJsonInput = document.getElementById('import-json-file');
     if (importJsonInput) {
       importJsonInput.addEventListener('change', (e) => {
-        if (!this.checkAdminPrivilege()) return;
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
@@ -859,7 +805,6 @@ class EventSpinApp {
     const clearAllRecordsBtn = document.getElementById('clear-records-btn');
     if (clearAllRecordsBtn) {
       clearAllRecordsBtn.addEventListener('click', () => {
-        if (!this.checkAdminPrivilege()) return;
         if (confirm('Are you sure you want to clear all team recorded combinations? This cannot be undone.')) {
           this.records = StorageService.clearAllRecords();
           this.renderMasterTrackerTable();
@@ -999,7 +944,6 @@ class EventSpinApp {
 
     tbody.querySelectorAll('.delete-record-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        if (!this.checkAdminPrivilege()) return;
         const id = e.currentTarget.dataset.id;
         if (confirm('Delete this team record?')) {
           this.records = StorageService.deleteTeamRecord(id);
@@ -1010,93 +954,11 @@ class EventSpinApp {
     });
   }
 
-  // --- ADMIN AUTHENTICATION CONTROLLER ---
-  setupAdminAuth() {
-    this.updateAdminStatusUI();
-
-    const authBtn = document.getElementById('admin-auth-btn');
-    if (authBtn) {
-      authBtn.addEventListener('click', () => {
-        const modal = document.getElementById('admin-login-modal');
-        const loginForm = document.getElementById('admin-login-form');
-        const loggedInPanel = document.getElementById('admin-logged-in-panel');
-
-        if (StorageService.isAdminLoggedIn()) {
-          loginForm?.classList.add('hidden');
-          loggedInPanel?.classList.remove('hidden');
-        } else {
-          loginForm?.classList.remove('hidden');
-          loggedInPanel?.classList.add('hidden');
-        }
-        modal?.classList.remove('hidden');
-      });
-    }
-
-    document.getElementById('submit-admin-login-btn')?.addEventListener('click', () => {
-      const u = document.getElementById('admin-username-input')?.value.trim();
-      const p = document.getElementById('admin-password-input')?.value;
-      const creds = StorageService.getAdminCredentials();
-
-      if (u === creds.username && p === creds.password) {
-        StorageService.setAdminLoggedIn(true);
-        this.updateAdminStatusUI();
-        this.closeModal('admin-login-modal');
-        this.showToast('Done!');
-      } else {
-        alert('Invalid admin credentials!');
-      }
-    });
-
-    document.getElementById('admin-logout-btn')?.addEventListener('click', () => {
-      StorageService.setAdminLoggedIn(false);
-      this.updateAdminStatusUI();
-      this.closeModal('admin-login-modal');
-      this.showToast('Done!');
-    });
-
-    document.getElementById('change-admin-password-btn')?.addEventListener('click', () => {
-      const newPass = document.getElementById('new-admin-password-input')?.value;
-      if (newPass && newPass.length >= 3) {
-        const creds = StorageService.getAdminCredentials();
-        StorageService.setAdminCredentials(creds.username, newPass);
-        this.showToast('Done!');
-      } else {
-        alert('Password must be at least 3 characters.');
-      }
-    });
-  }
-
-  updateAdminStatusUI() {
-    const label = document.getElementById('admin-auth-label');
-    const authBtn = document.getElementById('admin-auth-btn');
-    const isLoggedIn = StorageService.isAdminLoggedIn();
-
-    if (label && authBtn) {
-      if (isLoggedIn) {
-        label.textContent = 'Admin: Logged In';
-        authBtn.className = 'px-3 py-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5';
-      } else {
-        label.textContent = 'Admin Login';
-        authBtn.className = 'px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5';
-      }
-    }
-  }
-
-  checkAdminPrivilege() {
-    if (!StorageService.isAdminLoggedIn()) {
-      alert('🔒 Administrator login required to perform this action.');
-      document.getElementById('admin-auth-btn')?.click();
-      return false;
-    }
-    return true;
-  }
-
   // --- MODALS & CHALLENGE CARDS ---
   setupModals() {
     const openBulkBtn = document.getElementById('open-bulk-import-modal-btn');
     if (openBulkBtn) {
       openBulkBtn.addEventListener('click', () => {
-        if (!this.checkAdminPrivilege()) return;
         const modal = document.getElementById('bulk-import-modal');
         if (modal && this.activeEditorCategory.startsWith('wheel')) {
           const textarea = document.getElementById('bulk-paste-textarea');
