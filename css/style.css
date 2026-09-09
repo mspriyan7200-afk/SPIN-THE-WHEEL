@@ -99,7 +99,7 @@ body {
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(0, 200, 255, 0.2);
 }
 
-/* 3D Flip Card Effect for Market Shift Deck */
+/* 3D Flip Card Effect for Market Shift & Speed Feature Decks */
 .card-flip-container {
   perspective: 1000px;
   width: 100%;
@@ -147,6 +147,33 @@ body {
   transform: rotateY(180deg);
 }
 
+.speed-flip-front {
+  background: linear-gradient(135deg, #1E1608 0%, #2A1F0D 100%);
+  border: 2px dashed rgba(255, 200, 0, 0.5);
+  color: white;
+}
+
+.speed-flip-back {
+  background: linear-gradient(135deg, #06080E 0%, #1A1305 100%);
+  border: 2px solid #FFC800;
+  color: white;
+  transform: rotateY(180deg);
+}
+
+/* Custom Toast Notification */
+#toast-notification {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate(-50%, 20px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#toast-notification.show {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -185,11 +212,13 @@ body {
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
-/* Print Stylesheet for Challenge Cards */
+/* Print Stylesheet for Challenge Cards and Tracker Master PDF */
 @media print {
   body * {
     visibility: hidden;
   }
+  
+  /* Print Challenge Card */
   #printable-card-area, #printable-card-area * {
     visibility: visible;
   }
@@ -202,16 +231,32 @@ body {
     background: #FFFFFF !important;
     padding: 20px;
   }
+
+  /* Print Tracker Master PDF */
+  #printable-tracker-area, #printable-tracker-area * {
+    visibility: visible;
+  }
+  #printable-tracker-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    color: #000000 !important;
+    background: #FFFFFF !important;
+    padding: 15px;
+  }
+
   .no-print {
     display: none !important;
   }
+
   .print-card-box {
     border: 3px solid #000000 !important;
     background: #FFFFFF !important;
     color: #000000 !important;
     box-shadow: none !important;
     margin: 0 auto;
-    max-width: 650px;
+    max-width: 750px;
     padding: 30px;
     border-radius: 12px;
   }
@@ -219,9 +264,19 @@ body {
     color: #000000 !important;
     text-shadow: none !important;
   }
-  .print-badge {
-    border: 1px solid #000 !important;
-    background: #f0f0f0 !important;
-    color: #000 !important;
+  .print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    color: #000000 !important;
+  }
+  .print-table th, .print-table td {
+    border: 1px solid #333333 !important;
+    padding: 8px 10px !important;
+    color: #000000 !important;
+    font-size: 11px !important;
+  }
+  .print-table th {
+    background-color: #EEEEEE !important;
+    font-weight: bold !important;
   }
 }
