@@ -49,11 +49,8 @@
         </button>
       </nav>
 
-      <!-- Admin Login & Audio Toggle -->
+      <!-- Audio Toggle -->
       <div class="flex items-center gap-2.5">
-        <button id="admin-auth-btn" class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
-          <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i> <span id="admin-auth-label">Admin Login</span>
-        </button>
         <button id="audio-toggle-btn" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700/80 transition-colors" title="Toggle Sound FX">
           <i data-lucide="volume-2" class="w-5 h-5 text-[#00C8FF]"></i>
         </button>
@@ -110,10 +107,6 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
-          <button id="roll-speed-twist-btn" class="px-4 py-2.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-[#FFC800] border border-[#FFC800]/40 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all">
-            <i data-lucide="timer" class="w-4 h-4 text-[#FFC800]"></i> Roll Speed Twist
-          </button>
-
           <button id="spin-all-btn" class="flex-1 lg:flex-initial px-6 py-2.5 bg-gradient-to-r from-[#00C8FF] via-[#8B3DFF] to-[#FF2A85] hover:opacity-95 text-white font-black rounded-xl text-sm glow-button flex items-center justify-center gap-2">
             <i data-lucide="play" class="w-4 h-4 fill-white"></i> SPIN ALL 3 WHEELS
           </button>
@@ -122,23 +115,6 @@
             <i data-lucide="save" class="w-4 h-4 text-slate-950"></i> Record Combination
           </button>
         </div>
-      </div>
-
-      <!-- SPEED FEATURE TWIST DISPLAY BAR -->
-      <div id="speed-twist-banner" class="hidden glass-panel p-4 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/30 via-slate-900 to-amber-950/20 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center flex-shrink-0">
-            <i data-lucide="zap" class="w-5 h-5 text-[#FFC800]"></i>
-          </div>
-          <div>
-            <span class="text-[10px] font-black uppercase tracking-widest text-[#FFC800]">SPEED FEATURE TWIST ASSIGNED</span>
-            <h4 id="speed-twist-title" class="text-sm font-bold text-white">⚡ 45-Min Rapid MVP Sprint</h4>
-            <p id="speed-twist-desc" class="text-xs text-slate-300">Build a clickable demo of the core happy path in under 45 minutes for bonus points.</p>
-          </div>
-        </div>
-        <button id="clear-speed-twist-btn" class="text-xs text-slate-400 hover:text-rose-400 font-semibold px-2 py-1 rounded hover:bg-slate-800 transition-colors">
-          Clear Twist
-        </button>
       </div>
 
       <!-- 3 SPIN WHEELS GRID -->
@@ -593,56 +569,7 @@
     </div>
   </div>
 
-  <!-- MODAL 3: ADMIN LOGIN & PASSWORD MODAL -->
-  <div id="admin-login-modal" class="modal-root hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm modal-overlay">
-    <div class="glass-panel max-w-md w-full p-6 rounded-2xl space-y-4 border border-slate-700 modal-content">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="text-lg font-black text-white flex items-center gap-2">
-          <i data-lucide="shield-lock" class="w-5 h-5 text-amber-400"></i> Admin Authentication
-        </h3>
-        <button class="close-modal-btn p-1 text-slate-400 hover:text-white rounded-lg">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div id="admin-login-form" class="space-y-4">
-        <p class="text-xs text-slate-400">Login as Administrator to manage deck content, clear records, and reset settings.</p>
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Username</label>
-          <input type="text" id="admin-username-input" value="admin" class="w-full bg-slate-900 border border-slate-700 text-slate-100 px-3.5 py-2 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#00C8FF]" />
-        </div>
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Password</label>
-          <input type="password" id="admin-password-input" placeholder="Enter password..." class="w-full bg-slate-900 border border-slate-700 text-slate-100 px-3.5 py-2 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#00C8FF]" />
-          <p class="text-[11px] text-slate-500 mt-1">Default credentials: <code class="text-amber-300">admin / admin</code></p>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2">
-          <button class="close-modal-btn px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-700">Cancel</button>
-          <button id="submit-admin-login-btn" class="px-5 py-2 bg-[#00C8FF] hover:bg-sky-400 text-slate-950 font-black rounded-xl text-xs">Login</button>
-        </div>
-      </div>
-
-      <div id="admin-logged-in-panel" class="hidden space-y-4">
-        <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 font-bold flex items-center gap-2">
-          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> You are logged in as Administrator.
-        </div>
-
-        <div class="space-y-2">
-          <h4 class="text-xs font-black uppercase tracking-wider text-slate-300">Change Admin Password</h4>
-          <input type="password" id="new-admin-password-input" placeholder="New password..." class="w-full bg-slate-900 border border-slate-700 text-slate-100 px-3.5 py-2 rounded-xl text-sm focus:outline-none focus:border-[#00C8FF]" />
-          <button id="change-admin-password-btn" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700">Update Password</button>
-        </div>
-
-        <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
-          <button id="admin-logout-btn" class="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold">Logout</button>
-          <button class="close-modal-btn px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-700">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL 4: MASTER TRACKER PRINT / PDF VIEW -->
+  <!-- MODAL 3: MASTER TRACKER PRINT / PDF VIEW -->
   <div id="printable-tracker-modal" class="modal-root hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm modal-overlay">
     <div class="glass-panel max-w-5xl w-full p-6 rounded-2xl space-y-4 border border-slate-700 modal-content max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between no-print border-b border-slate-800 pb-3">
