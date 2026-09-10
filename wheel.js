@@ -48,7 +48,11 @@ export class SpinWheel {
   resizeCanvas() {
     if (!this.canvas) return;
     const parent = this.canvas.parentElement;
-    const size = Math.min(parent ? parent.clientWidth || 360 : 360, 500);
+    let clientW = parent ? parent.clientWidth : 0;
+    if (!clientW || clientW < 120) {
+      clientW = 360;
+    }
+    const size = Math.max(260, Math.min(clientW, 500));
     const dpr = window.devicePixelRatio || 1;
 
     this.canvas.width = size * dpr;
@@ -56,14 +60,16 @@ export class SpinWheel {
     this.canvas.style.width = `${size}px`;
     this.canvas.style.height = `${size}px`;
 
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.scale(dpr, dpr);
     this.size = size;
     this.centerX = size / 2;
     this.centerY = size / 2;
-    this.radius = size / 2 - 14; // Padding for pointer & border
+    this.radius = Math.max(100, size / 2 - 14); // Padding for pointer & border
 
     this.offscreenCanvas.width = size * dpr;
     this.offscreenCanvas.height = size * dpr;
+    this.offscreenCtx.setTransform(1, 0, 0, 1, 0, 0);
     this.offscreenCtx.scale(dpr, dpr);
 
     this.isCacheValid = false;
