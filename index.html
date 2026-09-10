@@ -393,6 +393,56 @@
           <!-- Dynamic rows inserted by app.js -->
         </div>
       </div>
+
+      <!-- RESTRICTED COMBINATIONS SETTINGS -->
+      <div class="glass-panel p-6 rounded-2xl space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-xl font-black text-white flex items-center gap-2">
+              <i data-lucide="ban" class="w-5 h-5 text-rose-400"></i> Restricted Combinations
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Blocked combos will never land — wheels auto-respin if a restricted combination occurs.</p>
+          </div>
+          <button id="clear-restrictions-btn" class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold rounded-xl border border-rose-500/30 transition-colors flex items-center gap-1.5">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear All
+          </button>
+        </div>
+
+        <!-- Add New Restriction -->
+        <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-3">
+          <p class="text-xs font-black text-slate-300 flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5 text-[#FF2A85]"></i> Add a Restriction Rule</p>
+          <p class="text-xs text-slate-500">Set a wheel to <span class="text-slate-300 font-bold">— Any —</span> to block all combos regardless of that wheel's result.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="space-y-1">
+              <label class="text-xs text-slate-400 font-semibold">Wheel 1 · Experience</label>
+              <select id="restrict-w1" class="w-full bg-slate-900 border border-slate-700 text-slate-100 px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-[#00C8FF]">
+                <option value="*">— Any —</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs text-slate-400 font-semibold">Wheel 2 · Product</label>
+              <select id="restrict-w2" class="w-full bg-slate-900 border border-slate-700 text-slate-100 px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-[#00C8FF]">
+                <option value="*">— Any —</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs text-slate-400 font-semibold">Wheel 3 · Constraint</label>
+              <select id="restrict-w3" class="w-full bg-slate-900 border border-slate-700 text-slate-100 px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-[#00C8FF]">
+                <option value="*">— Any —</option>
+              </select>
+            </div>
+          </div>
+          <button id="add-restriction-btn" class="px-5 py-2 bg-[#FF2A85]/20 hover:bg-[#FF2A85]/30 text-[#FF2A85] border border-[#FF2A85]/40 text-xs font-black rounded-xl transition-colors flex items-center gap-2">
+            <i data-lucide="ban" class="w-4 h-4"></i> Block This Combination
+          </button>
+        </div>
+
+        <!-- Restrictions List -->
+        <div id="restrictions-list" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+          <!-- Rendered by app.js -->
+        </div>
+      </div>
+
     </section>
 
     <!-- TAB 5: MASTER COMBINATION TRACKER -->
