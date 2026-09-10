@@ -14,6 +14,7 @@ class EventSpinApp {
     this.records = StorageService.getTeamRecords();
     this.marketShifts = StorageService.getMarketShifts();
     this.speedFeatures = StorageService.getSpeedFeatures();
+    this.restrictedCombos = StorageService.getRestrictedCombos();
 
     this.wheelInstances = {};
     this.currentResults = {
@@ -42,6 +43,7 @@ class EventSpinApp {
     this.setupSpeedFeatureDeck();
     this.setupMarketShiftDeck();
     this.setupEditor();
+    this.setupRestrictionsManager();
     this.setupMasterTracker();
     this.setupModals();
 
@@ -208,6 +210,7 @@ class EventSpinApp {
       this.currentProblemStatement = rawText.replace(/\*\*/g, '');
 
       const formatted = rawText
+        .replace(/\n\n/g, '<br><br>')
         .replace(/\*\*(.*?)\*\*/g, '<span class="text-[#00C8FF] font-black">$1</span>');
 
       const psEl = document.getElementById('generated-problem-statement');
@@ -287,6 +290,19 @@ class EventSpinApp {
     this.updateProblemStatement();
 
     if (this.currentResults.wheel1 && this.currentResults.wheel2 && this.currentResults.wheel3) {
+      const w1 = this.currentResults.wheel1;
+      const w2 = this.currentResults.wheel2;
+      const w3 = this.currentResults.wheel3;
+
+      if (this.isRestrictedCombo(w1, w2, w3)) {
+        // Show warning and auto-respin
+        this.showToast('🚫 Restricted combo! Re-spinning...');
+        setTimeout(() => {
+          this.spinAllWheels();
+        }, 1800);
+        return;
+      }
+
       this.triggerConfetti();
     }
   }
@@ -299,6 +315,110 @@ class EventSpinApp {
         origin: { y: 0.6 }
       });
     }
+  }
+
+  // --- RESTRICTED COMBINATIONS ---
+
+  isRestrictedCombo(w1, w2, w3) {
+    return this.restrictedCombos.some(rule => {
+      const match1 = rule.w1 === '*' || rule.w1 === w1;
+      const match2 = rule.w2 === '*' || rule.w2 === w2;
+      const match3 = rule.w3 === '*' || rule.w3 === w3;
+      return match1 && match2 && match3;
+    });
+  }
+
+  setupRestrictionsManager() {
+    this._populateRestrictionDropdowns();
+    this.renderRestrictionsList();
+
+    document.getElementById('add-restriction-btn')?.addEventListener('click', () => {
+      const w1 = document.getElementById('restrict-w1')?.value || '*';
+      const w2 = document.getElementById('restrict-w2')?.value || '*';
+      const w3 = document.getElementById('restrict-w3')?.value || '*';
+
+      if (w1 === '*' && w2 === '*' && w3 === '*') {
+        this.showToast('⚠️ At least one wheel must be specific!');
+        return;
+      }
+
+      // Prevent duplicates
+      const exists = this.restrictedCombos.some(r => r.w1 === w1 && r.w2 === w2 && r.w3 === w3);
+      if (exists) {
+        this.showToast('⚠️ That rule already exists!');
+        return;
+      }
+
+      this.restrictedCombos.push({ w1, w2, w3 });
+      StorageService.saveRestrictedCombos(this.restrictedCombos);
+      this.renderRestrictionsList();
+      this.showToast('🚫 Restriction added!');
+    });
+
+    document.getElementById('clear-restrictions-btn')?.addEventListener('click', () => {
+      if (!this.restrictedCombos.length) return;
+      if (!confirm('Clear all restricted combinations?')) return;
+      this.restrictedCombos = [];
+      StorageService.clearRestrictedCombos();
+      this.renderRestrictionsList();
+      this.showToast('Done!');
+    });
+  }
+
+  _populateRestrictionDropdowns() {
+    const selectors = {
+      'restrict-w1': this.wheelsConfig.wheel1?.items || [],
+      'restrict-w2': this.wheelsConfig.wheel2?.items || [],
+      'restrict-w3': this.wheelsConfig.wheel3?.items || []
+    };
+    Object.entries(selectors).forEach(([id, items]) => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      // Keep "Any" option, rebuild the rest
+      sel.innerHTML = '<option value="*">— Any —</option>';
+      items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        sel.appendChild(opt);
+      });
+    });
+  }
+
+  renderRestrictionsList() {
+    const container = document.getElementById('restrictions-list');
+    if (!container) return;
+
+    if (!this.restrictedCombos.length) {
+      container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No restrictions set. All wheel combinations are allowed.</p>`;
+      return;
+    }
+
+    container.innerHTML = this.restrictedCombos.map((rule, idx) => {
+      const label = w => w === '*' ? '<span class="text-slate-500">Any</span>' : `<span class="text-white font-bold">${w}</span>`;
+      return `
+        <div class="flex items-center justify-between bg-rose-950/30 border border-rose-800/40 rounded-xl px-4 py-2.5 gap-3">
+          <div class="text-xs flex items-center gap-2 flex-wrap">
+            <span class="text-rose-400 font-black text-[10px] uppercase tracking-wider">Block</span>
+            <span class="text-slate-400">W1:</span>${label(rule.w1)}
+            <span class="text-slate-600">·</span>
+            <span class="text-slate-400">W2:</span>${label(rule.w2)}
+            <span class="text-slate-600">·</span>
+            <span class="text-slate-400">W3:</span>${label(rule.w3)}
+          </div>
+          <button data-idx="${idx}" class="restriction-delete-btn flex-shrink-0 px-2 py-1 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 rounded-lg text-xs font-bold transition-colors">✕</button>
+        </div>`;
+    }).join('');
+
+    container.querySelectorAll('.restriction-delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        this.restrictedCombos.splice(idx, 1);
+        StorageService.saveRestrictedCombos(this.restrictedCombos);
+        this.renderRestrictionsList();
+        this.showToast('Done!');
+      });
+    });
   }
 
   recordCurrentCombination() {
@@ -551,6 +671,9 @@ class EventSpinApp {
     if (!titleEl || !addContainer || !itemsContainer) return;
     itemsContainer.innerHTML = '';
     addContainer.innerHTML = '';
+
+    // Keep restriction dropdowns in sync with wheel items
+    this._populateRestrictionDropdowns();
 
     // CASE 1: WHEEL EDITING
     if (this.activeEditorCategory.startsWith('wheel')) {
