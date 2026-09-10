@@ -1,14 +1,16 @@
 /**
  * Default Data & Presets for Event Spin Wheels
- * Section 2 & 4 implementation
+ * DRESTEIN '26 Theme - 4 Theme Colors Only: Cyan (#00C8FF), Yellow (#FFC800), Pink (#FF2A85), Purple (#8B3DFF)
  */
+
+export const THEME_COLORS = ['#00C8FF', '#FFC800', '#FF2A85', '#8B3DFF'];
 
 export const DEFAULT_WHEELS = {
   wheel1: {
     id: 'wheel1',
     title: 'Digital Experience',
     description: 'Wheel 1: Format / Digital Platform (12-15 options)',
-    colorPalette: ['#3B82F6', '#6366F1', '#8B5CF6', '#EC4899', '#F43F5E', '#10B981', '#06B6D4', '#0EA5E9'],
+    colorPalette: ['#00C8FF', '#FFC800', '#FF2A85', '#8B3DFF'],
     items: [
       'Mobile App',
       'VR Experience',
@@ -30,7 +32,7 @@ export const DEFAULT_WHEELS = {
     id: 'wheel2',
     title: 'Product / Object',
     description: 'Wheel 2: Physical / Domain Focus (15-20 options)',
-    colorPalette: ['#F59E0B', '#10B981', '#84CC16', '#06B6D4', '#6366F1', '#EC4899', '#F97316', '#A855F7'],
+    colorPalette: ['#00C8FF', '#FFC800', '#FF2A85', '#8B3DFF'],
     items: [
       'Smart Refrigerator',
       'Electric Bicycle',
@@ -56,7 +58,7 @@ export const DEFAULT_WHEELS = {
     id: 'wheel3',
     title: 'Target User / Constraint',
     description: 'Wheel 3: Persona / Technical Constraint (15-20 options)',
-    colorPalette: ['#EF4444', '#F97316', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899', '#14B8A6'],
+    colorPalette: ['#00C8FF', '#FFC800', '#FF2A85', '#8B3DFF'],
     items: [
       'Elderly Tech Beginners',
       'College Students on Budget',
@@ -76,6 +78,82 @@ export const DEFAULT_WHEELS = {
     ]
   }
 };
+
+export const DEFAULT_SPEED_FEATURES = [
+  {
+    id: 'sf-1',
+    title: '⚡ 45-Min Rapid MVP Sprint',
+    description: 'Build a clickable demo of the core happy path in under 45 minutes for bonus judging points.',
+    badge: '45-Min MVP Sprint'
+  },
+  {
+    id: 'sf-2',
+    title: '🚀 60-Second Lightning Pitch',
+    description: 'Final demo must be delivered in exactly 60 seconds with zero slides—pure live prototype walkthrough.',
+    badge: '60s Lightning Pitch'
+  },
+  {
+    id: 'sf-3',
+    title: '⏱️ 15-Second Frictionless Onboarding',
+    description: 'A first-time user must be able to complete their primary task within 15 seconds of opening the app.',
+    badge: '15s Onboarding'
+  },
+  {
+    id: 'sf-4',
+    title: '🏎️ 3-Tap Micro Interaction Flow',
+    description: 'All primary interactions must be fully operable in less than 3 taps / clicks.',
+    badge: '3-Tap Flow'
+  },
+  {
+    id: 'sf-5',
+    title: '⏳ 30-Min Fast Pivot Challenge',
+    description: 'Must adapt one feature mid-way to address a live mock user feedback prompt in under 30 minutes.',
+    badge: 'Fast Pivot Challenge'
+  },
+  {
+    id: 'sf-6',
+    title: '🔥 Live Interactive Demo Only',
+    description: 'No mockups or static screenshots during judging—must be run live in browser/device under pressure.',
+    badge: 'Live Run Only'
+  },
+  {
+    id: 'sf-7',
+    title: '🎯 Single Killer Core Feature',
+    description: 'Strip away all secondary features and polish 1 single killer interaction to perfection.',
+    badge: 'Single Core Focus'
+  },
+  {
+    id: 'sf-8',
+    title: '💨 Turbo Power-User Shortcuts',
+    description: 'Implement power-user hotkeys for every main action to enable lightning-fast navigation.',
+    badge: 'Turbo Shortcuts'
+  }
+];
+
+export const PROBLEM_TEMPLATES = [
+  (exp, prod, user) => 
+    `📖 **The Scenario:** A community of **${user}** relies heavily on their **${prod}** every single day. However, clunky interfaces, confusing controls, and rigid designs turn simple daily tasks into stressful bottlenecks.\n\n🎯 **Your Mission:** Design a breakthrough **${exp}** for the **${prod}** that completely transforms their daily experience—turning everyday friction into an intuitive, empowering, and delightful journey!`,
+
+  (exp, prod, user) => 
+    `📖 **The Scenario:** For **${user}**, operating a **${prod}** quickly becomes overwhelming under real-world time pressure and unique constraints. Traditional solutions completely overlook their accessibility and workflow needs.\n\n🎯 **Your Mission:** Build an innovative **${exp}** that acts as an intelligent, responsive co-pilot for the **${prod}**, delivering instant clarity, effortless accessibility, and rapid control when they need it most.`,
+
+  (exp, prod, user) => 
+    `📖 **The Scenario:** Traditional versions of **${prod}** were never built with **${user}** in mind. As technology advances, they face steep learning curves, frequent errors, and unnecessary daily complexity.\n\n🎯 **Your Mission:** Reimagine the future of the **${prod}** through a cutting-edge **${exp}**, purpose-built from the ground up to empower **${user}** with seamless, barrier-free interactions.`,
+
+  (exp, prod, user) => 
+    `📖 **The Scenario:** Imagine **${user}** trying to unlock the full potential of their **${prod}**, only to be held back by complicated setup, unhelpful feedback, and zero personalized guidance.\n\n🎯 **Your Mission:** Architect a human-centered **${exp}** that bridges this gap—empowering **${user}** to master their **${prod}** effortlessly, safely, and with complete confidence.`,
+
+  (exp, prod, user) => 
+    `📖 **The Scenario:** In fast-paced moments, **${user}** need their **${prod}** to deliver instantaneous results without second-guessing or deciphering complex manuals.\n\n🎯 **Your Mission:** Engineer a streamlined **${exp}** that strips away all complexity from the **${prod}**, delivering a lightning-fast, ultra-reliable, and highly rewarding experience for **${user}**.`
+];
+
+export function generateProblemStatement(digitalExp, product, constraint, templateIndex = 0) {
+  if (!digitalExp || !product || !constraint || digitalExp === 'Pending Spin' || product === 'Pending Spin' || constraint === 'Pending Spin') {
+    return 'Spin all 3 wheels to generate an AI-crafted story problem statement!';
+  }
+  const tpl = PROBLEM_TEMPLATES[templateIndex % PROBLEM_TEMPLATES.length];
+  return tpl(digitalExp, product, constraint);
+}
 
 export const DEFAULT_MARKET_SHIFTS = [
   {
