@@ -10,7 +10,8 @@ const STORAGE_KEYS = {
   MARKET_SHIFTS: 'event_spin_market_shifts',
   SPEED_FEATURES: 'event_spin_speed_features',
   ADMIN_AUTH: 'event_spin_admin_auth',
-  ADMIN_SESSION: 'event_spin_admin_session'
+  ADMIN_SESSION: 'event_spin_admin_session',
+  RESTRICTED_COMBOS: 'event_spin_restricted_combos'
 };
 
 export class StorageService {
@@ -154,6 +155,25 @@ export class StorageService {
   static resetMarketShifts() {
     localStorage.removeItem(STORAGE_KEYS.MARKET_SHIFTS);
     return JSON.parse(JSON.stringify(DEFAULT_MARKET_SHIFTS));
+  }
+
+  // --- RESTRICTED COMBINATIONS ---
+  static getRestrictedCombos() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.RESTRICTED_COMBOS);
+      if (data) return JSON.parse(data);
+    } catch (e) {}
+    return [];
+  }
+
+  static saveRestrictedCombos(combos) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.RESTRICTED_COMBOS, JSON.stringify(combos));
+    } catch (e) {}
+  }
+
+  static clearRestrictedCombos() {
+    localStorage.removeItem(STORAGE_KEYS.RESTRICTED_COMBOS);
   }
 
   // --- ADMIN AUTHENTICATION ---
